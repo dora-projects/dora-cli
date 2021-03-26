@@ -1,12 +1,20 @@
 {
-  "name": "dora-cli",
-  "version": "1.0.0",
+  "name": "@doras/cli",
+  "version": "0.0.1",
   "description": "",
+  "bin": {
+    "dora": "./index.js"
+  },
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^7.2.0",
+    "shelljs": "^0.8.4",
+    "simple-git": "^2.37.0"
+  }
 }
