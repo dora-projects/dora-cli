@@ -2,6 +2,8 @@
 const { Command } = require('commander');
 const package = require("./package.json");
 
+const version = require("./src/version");
+
 const program = new Command();
 
 // program.addHelpText('beforeAll', ``);
@@ -14,7 +16,7 @@ program
   .command('gen')
   .description('生成当前项目 git 版本信息（构建前使用）')
   .action(() => {
-    console.log('build');
+    version()
   });
 
 program
