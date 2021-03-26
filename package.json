@@ -8,9 +8,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "release:major": "npm version major -m 'build: Release v%s' && npm run build",
-    "release:minor": "npm version minor -m 'build: Release v%s' && npm run build",
-    "release:patch": "npm version patch -m 'build: Release v%s' && npm run build"
+    "release:major": "npm version major -m 'build: Release v%s'",
+    "release:minor": "npm version minor -m 'build: Release v%s'",
+    "release:patch": "npm version patch -m 'build: Release v%s'"
   },
   "keywords": [],
   "author": "",
