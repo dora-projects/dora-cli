@@ -1,9 +1,9 @@
 const { exec } = require('shelljs');
 
 function version() {
-  const version = exec('git log --date=iso --pretty=format:"%cd @%H" -1', { silent: true }).stdout;
-  const tag = exec('git describe --tags 2>/dev/null', { silent: true }).stdout;
   const t = exec(`TZ=Asia/Shanghai date +"%F %T %z" | tr -d "\\n"`, { silent: true }).stdout;
+  const tag = exec(`git describe --tags 2>/dev/null  | tr -d "\\n"`, { silent: true }).stdout;
+  const version = exec('git log --date=iso --pretty=format:"%cd @%H" -1', { silent: true }).stdout;
 
   const sh = `cat <<EOF >version.js
 module.exports = {

@@ -3,6 +3,9 @@ const { Command } = require('commander');
 const package = require("./package.json");
 
 const version = require("./src/version");
+const rsync = require("./src/rsync");
+const sourcemap = require("./src/sourcemap");
+const backup = require("./src/backup");
 
 const program = new Command();
 
@@ -39,15 +42,16 @@ program
 
 
 program
-  .command('sync')
+  .command('rsync')
   .description(`同步 build 资源发布到远程机器`) // (优化：先同步静态资源，再同步html文件)
   .requiredOption('-i, --ip <ip>', '服务器ip')
   .requiredOption('-u, --user <user>', '用户')
-  .requiredOption('-p, --password <password>', '密码')
-  .requiredOption('-d, --dest <password>', 'web部署地址')
-  .option('-e, --exclude [exclude]', '排除文件', ".map")
+  .requiredOption('-b, --build <build>', 'build打包后的文件')
+  .requiredOption('-r, --remoteDir <remoteDir>', 'web部署地址')
+  // .option('-e, --exclude [exclude]', '排除文件', ".map")
   .action((options) => {
-    console.log(options)
+    const { ip, user, build, remoteDir } = options
+    rsync({ ip, user, build, remoteDir })
   })
 
 program.addHelpText("afterAll", `
