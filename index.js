@@ -35,9 +35,10 @@ program
   .command('map')
   .description('上传 sourcemap 到 dora 监控服务')
   .requiredOption('-a, --appId <appId>', 'dora系统中的项目唯一标识')
-  .requiredOption('-a, --url <url>', 'dora系统中的项目唯一标识')
+  .requiredOption('-u, --url <url>', 'dora系统中的项目唯一标识')
   .action((options) => {
-    console.log(options)
+    const { appId, url } = options
+    sourcemap({ appId, url })
   })
 
 
