@@ -10,7 +10,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "release:major": "npm version major -m 'build: Release v%s'",
     "release:minor": "npm version minor -m 'build: Release v%s'",
-    "release:patch": "npm version patch -m 'build: Release v%s'"
+    "release:patch": "npm version patch -m 'build: Release v%s'",
+    "clean": "rm -rf dist && rm -rf node_modules",
+    "lint": "eslint --fix"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +24,7 @@
     "shelljs": "^0.8.4"
   },
   "devDependencies": {
-    "@types/node": "^14.14.37"
+    "@types/node": "^14.14.37",
+    "eslint": "^7.26.0"
   }
 }

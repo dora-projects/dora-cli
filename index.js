@@ -1,25 +1,25 @@
 #!/usr/bin/env node
 const { Command } = require('commander');
-const package = require("./package.json");
+const pkg = require('./package.json');
 
-const version = require("./src/version");
-const rsync = require("./src/rsync");
-const sourcemap = require("./src/sourcemap");
-const backup = require("./src/backup");
+const version = require('./src/version');
+const rsync = require('./src/rsync');
+const sourcemap = require('./src/sourcemap');
+const backup = require('./src/backup');
 
 const program = new Command();
 
 // program.addHelpText('beforeAll', ``);
 
-program.version(package.version, '-v, --version', '版本信息')
+program.version(pkg.version, '-v, --version', '版本信息');
 program.helpOption('-h, --help', '帮助信息');
-program.usage("[command] [options]")
+program.usage('[command] [options]');
 
 program
-  .command('gen')
+  .command('version')
   .description('生成当前项目 git 版本信息（构建前使用）')
   .action(() => {
-    version()
+    version();
   });
 
 program
@@ -28,8 +28,8 @@ program
   .requiredOption('-a, --appId <appId>', 'dora系统中的项目唯一标识')
   .requiredOption('-u, --url <url>', 'dora 系统的备份上传接口')
   .action((options) => {
-    console.log(options)
-  })
+    console.log(options);
+  });
 
 program
   .command('map')
@@ -37,10 +37,9 @@ program
   .requiredOption('-a, --appId <appId>', 'dora系统中的项目唯一标识')
   .requiredOption('-u, --url <url>', 'dora系统中的项目唯一标识')
   .action((options) => {
-    const { appId, url } = options
-    sourcemap({ appId, url })
-  })
-
+    const { appId, url } = options;
+    sourcemap({ appId, url });
+  });
 
 program
   .command('rsync')
@@ -51,14 +50,16 @@ program
   .requiredOption('-r, --remoteDir <remoteDir>', 'web部署地址')
   // .option('-e, --exclude [exclude]', '排除文件', ".map")
   .action((options) => {
-    const { ip, user, build, remoteDir } = options
-    rsync({ ip, user, build, remoteDir })
-  })
+    const { ip, user, build, remoteDir } = options;
+    rsync({ ip, user, build, remoteDir });
+  });
 
-program.addHelpText("afterAll", `
+program.addHelpText(
+  'afterAll',
+  `
 --------------------------------
 本工具配合 Dora 监控系统，使用效果更佳
-`)
-
+`
+);
 
 program.parse(process.argv);

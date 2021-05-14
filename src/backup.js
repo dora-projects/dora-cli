@@ -1,7 +1,5 @@
-const { exec } = require('shelljs');
+const { exec } = require("shelljs");
 
-function backup() {
+function backup() {}
 
-}
-
-module.exports = backup
+module.exports = backup;
