@@ -1,5 +1,5 @@
 {
-  "extends": "@tsconfig/node12/tsconfig.json",
+  "extends": "@tsconfig/node10/tsconfig.json",
   "compilerOptions": {
     "declaration": true,
     "composite": true,
@@ -7,5 +7,12 @@
     "noImplicitReturns": true,
     "resolveJsonModule": true,
     "outDir": "dist"
-  }
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+  ]
 }

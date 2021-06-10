@@ -1,7 +1,7 @@
 module.exports = {
+  verbose: true,
+  coverageDirectory: "coverage",
   preset: 'ts-jest',
-  testEnvironment: 'node',
-  transform: {
-    '^.+\\.(t|j)s$': 'ts-jest',
-  },
+  testEnvironment: "node",
+  modulePathIgnorePatterns: ["<rootDir>/dist/"]
 };
