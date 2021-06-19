@@ -10,8 +10,8 @@ const program = new Command();
 program
   .command("tag")
   .description("生成版本信息的代码文件, 可在项目 build 前使用，build 时打包进代码里")
-  .option("-t, --tag <sting>", "git tag 内容")
-  .requiredOption("-f, --filename <sting>", "生产的版本信息文件名 json 格式")
+  .option("-m, --msg <sting>", "git tag 内容")
+  .option("-f, --filename <sting>", "生产的版本信息文件名 json 格式", "version.json")
   .action(async (options) => {
     await genVersionTag(options);
   });

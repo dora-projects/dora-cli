@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import fs from 'fs/promises';
 import path from 'path';
 import { timeNowFormat } from '../helper';
+import dayjs from 'dayjs';
 
 const error = chalk.bold.red;
 
@@ -15,8 +16,7 @@ const options: Partial<SimpleGitOptions> = {
 const git: SimpleGit = simpleGit(options);
 
 interface genVersionTagProps {
-  tag: string,
-  lang: string
+  msg: string,
   filename: string
 }
 
@@ -26,12 +26,12 @@ interface genVersionTagProps {
  * 输出
  */
 const genVersionTag = async (options: genVersionTagProps): Promise<void> => {
-  const { tag, filename } = options;
+  const { msg, filename } = options;
   const pwd = process.cwd();
 
   try {
     // todo 自动version
-    tag && await git.addTag(tag);
+    msg && await git.addTag(msg);
 
     const configDest = path.resolve(pwd, filename);
 
@@ -40,15 +40,24 @@ const genVersionTag = async (options: genVersionTagProps): Promise<void> => {
     const latestLog = logs.latest;
 
     const versionInfo = JSON.stringify({
-      tag: tag,
-      tag_date: now,
+      tag: msg,
+      build_date: now,
       author: latestLog?.author_name,
       author_mail: latestLog?.author_email,
       commit_hash: latestLog?.hash,
-      commit_date: latestLog?.date,
+      commit_date: latestLog?.date && dayjs(latestLog?.date).format('YYYY-MM-DD HH:mm:ss'),
     }, null, 2);
 
     await fs.writeFile(configDest, versionInfo);
+
+    console.log(chalk.green(`
+版本信息已生成！！
+文件存放在：${configDest}
+--------------------------------------------------------
+${versionInfo}
+--------------------------------------------------------
+`));
+
   } catch (e) {
     console.log(error(e));
   }
