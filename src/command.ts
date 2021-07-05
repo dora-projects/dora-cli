@@ -3,6 +3,7 @@ import chalk from 'chalk';
 
 import Init from './cmd/init';
 import backup from './cmd/backup';
+import deploy from './cmd/deploy';
 import genVersionTag from './cmd/tag';
 
 export default function register(): void {
@@ -29,14 +30,12 @@ export default function register(): void {
       await backup(options);
     });
 
-
   program
     .command('deploy')
     .description('deploy to server')
-    .action((options) => {
-      console.log(options);
+    .action(async (options) => {
+      await deploy();
     });
-
 
 // program
 //   .command("docker")

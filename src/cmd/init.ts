@@ -28,20 +28,30 @@ export default function({ ...args }: { appId: string, url: string }): void {
       appId: '',
       serverUrl: '',
     },
-    cmd: {
-      deploy: {
-        dev: {
-          host: '',
-          user: '',
-          destDir: '',
-        },
-        test: {
-          host: '',
-          user: '',
-          destDir: '',
-        },
+    deploy: [
+      {
+        env: 'dev',
+        remarks: '',
+        hosts: [
+          {
+            ip: '',
+            user: '',
+            destDir: '',
+          },
+        ],
       },
-    },
+      {
+        env: 'test',
+        remarks: '',
+        hosts: [
+          {
+            ip: '',
+            user: '',
+            destDir: '',
+          },
+        ],
+      },
+    ],
   };
 
   // todo 是否覆盖原有文件

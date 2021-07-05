@@ -1,6 +1,6 @@
 export interface Config {
   base: Base;
-  cmd: Cmd;
+  deploy?: Env[];
 }
 
 export interface Base {
@@ -9,14 +9,14 @@ export interface Base {
   serverUrl: string;
 }
 
-export interface Cmd {
-  deploy?: {
-    [key: string]: hostEnv
-  };
+export interface Env {
+  env: string;
+  remarks: string;
+  hosts: Host[]
 }
 
-export interface hostEnv {
-  host: string;
+export interface Host {
+  ip: string;
   user: string;
   destDir: string;
 }

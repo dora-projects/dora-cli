@@ -34,6 +34,6 @@ export function compress(fromDir: string, destDir: string): Promise<void> {
     zlib: { level: 5 }, // Sets the compression level.
   });
   archive.pipe(output);
-  archive.directory(fromDir, 'dist');
+  archive.directory(fromDir, false);
   return archive.finalize();
 }
