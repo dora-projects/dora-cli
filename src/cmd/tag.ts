@@ -1,19 +1,11 @@
-import simpleGit, { SimpleGit, SimpleGitOptions } from 'simple-git';
 import chalk from 'chalk';
 import fs from 'fs/promises';
 import path from 'path';
-import { timeNowFormat } from '../helper/time';
 import dayjs from 'dayjs';
+import { timeNowFormat } from '../helper/time';
+import { git, getGitLogs } from '../helper/git';
 
 const error = chalk.bold.red;
-
-const options: Partial<SimpleGitOptions> = {
-  baseDir: process.cwd(),
-  binary: 'git',
-  maxConcurrentProcesses: 6,
-};
-
-const git: SimpleGit = simpleGit(options);
 
 interface genVersionTagProps {
   msg: string,
@@ -36,7 +28,7 @@ const genVersionTag = async (options: genVersionTagProps): Promise<void> => {
     const configDest = path.resolve(pwd, filename);
 
     const now = timeNowFormat();
-    const logs = await git.log();
+    const logs = await getGitLogs();
     const latestLog = logs.latest;
 
     const versionInfo = JSON.stringify({

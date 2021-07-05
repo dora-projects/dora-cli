@@ -1,7 +1,7 @@
 import axios from 'axios';
 import FormData from 'form-data';
 import fs from 'fs';
-import type {BackupFields} from "../type"
+import type { BackupFields } from '../type';
 
 export function uploadZips(url: string, data: BackupFields): Promise<void> {
   const form = new FormData();
@@ -10,7 +10,9 @@ export function uploadZips(url: string, data: BackupFields): Promise<void> {
 
   form.append('file_name', data.file_name);
   form.append('file_type', data.file_type);
-  form.append('file', fs.createReadStream(data.file_path));
+  form.append('file', fs.createReadStream(data.file_path), {
+    filename: data.file_name,
+  });
 
   form.append('git_name', data.git_name);
   form.append('git_email', data.git_email);
@@ -22,8 +24,5 @@ export function uploadZips(url: string, data: BackupFields): Promise<void> {
 
   return axios.post(`${url}/api/project/upload/backup`, form, {
     headers: form.getHeaders(),
-    onUploadProgress(v) {
-      console.log(v);
-    },
   });
 }

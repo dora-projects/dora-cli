@@ -1,44 +1,46 @@
-import { access } from 'fs/promises';
-import fs, { constants, createReadStream } from 'fs';
-import { compress, copy } from '../helper/fs';
+import path from 'path';
 import ora from 'ora';
-import FormData from 'form-data';
-
+import dayjs from 'dayjs';
 import { getConfig } from '../config';
-import chalk from 'chalk';
 import { uploadZips } from '../helper/upload';
-import { BackupFields } from '../type';
+import { getGitLogs, git } from '../helper/git';
+import { compress, copy, isExist } from '../helper/fs';
+import chalk from 'chalk';
 
 const cwd = process.cwd();
+let spinner: ora.Ora|null = null;
+
+const tmpAllDir = `${cwd}/tmp/dora/all`;
+const tmpProdDir = `${cwd}/tmp/dora/prod`;
+const tmpSourcemapDir = `${cwd}/tmp/dora/sourcemap`;
+
+const outputAll = `${cwd}/tmp/dora/all.zip`;
+const outputProd = `${cwd}/tmp/dora/prod.zip`;
+const outputSourcemap = `${cwd}/tmp/dora/sourcemap.zip`;
 
 // 备份构建产物
-// todo 进度条
 export default async function({ ...args }: { appId: string, url: string }): Promise<void> {
   const conf = getConfig();
   if (!conf) return;
   const dir = conf.base.outDir;
   const appId = conf.base.appId;
   const serverUrl = conf.base.serverUrl;
+  const absOutDir = `${cwd}/${dir}`;
 
-  const outDir = `${cwd}/${dir}`;
-  const tmpAllDir = `${cwd}/tmp/dora/all`;
-  const tmpProdDir = `${cwd}/tmp/dora/prod`;
-  const tmpSourcemapDir = `${cwd}/tmp/dora/sourcemap`;
-
-  try {
-    await access(outDir, constants.R_OK);
-  } catch {
-    console.error('cannot access:' + outDir);
+  if (!isExist(absOutDir)) {
+    console.log();
+    console.log(`outDir is not exist: ${chalk.redBright(absOutDir)}
+please check you base.outDir config or build you project!`);
+    console.log();
     return;
   }
-
-  const spinner = ora('copy file...').start();
+  spinner = ora('copy file...').start();
 
   // 复制
   try {
-    copy(outDir, tmpAllDir, () => true);
-    copy(outDir, tmpProdDir, (file) => !(/\.map$/.test(file)));
-    copy(outDir, tmpSourcemapDir, (file) => /\.map$/.test(file));
+    copy(absOutDir, tmpAllDir, () => true);
+    copy(absOutDir, tmpProdDir, (file) => !(/\.map$/.test(file)));
+    copy(absOutDir, tmpSourcemapDir, (file) => /\.map$/.test(file));
     spinner.succeed('copy file finished');
   } catch (e) {
     console.log(e);
@@ -46,42 +48,59 @@ export default async function({ ...args }: { appId: string, url: string }): Prom
   }
 
   // 压缩
-  const outputAll = `${cwd}/tmp/dora/all.zip`;
-  const outputProd = `${cwd}/tmp/dora/prod.zip`;
-  const outputSourcemap = `${cwd}/tmp/dora/sourcemap.zip`;
   try {
-    spinner.start('compress files...');
+    spinner.start('compress all files...');
     await compress(tmpAllDir, outputAll);
+    spinner.start('compress prod files...');
     await compress(tmpProdDir, outputProd);
+    spinner.start('compress sourcemap files...');
     await compress(tmpSourcemapDir, outputSourcemap);
-    spinner.succeed('compress file finished');
+    spinner.succeed('compress file finished 🐂🐂👍👍👍');
   } catch (e) {
     console.log(e);
   }
 
   // 上传
+  await stepUpload(appId, serverUrl);
+  spinner.stop();
+}
+
+
+async function stepUpload(appId: string, serverUrl: string) {
   try {
-    spinner.start('upload files...');
-    const data: BackupFields = {
-      appId: conf.base.appId,
-      project_name: '',
+    spinner?.start('upload files... 😝');
 
-      file_name: '',
-      file_type: '',
-      file_path: outputAll,
+    const branch = await git.branch();
+    const logs = await getGitLogs();
+    const latestLog = logs.latest;
 
-      git_name: '',
-      git_email: '',
-      git_branch: '',
+    const data = {
+      appId,
+      project_name: path.basename(cwd),
 
-      commit: '',
-      commit_sha: '',
-      commit_ts: '',
+      git_name: latestLog?.author_name,
+      git_email: latestLog?.author_email,
+      git_branch: branch.current,
+
+      commit: latestLog?.message,
+      commit_sha: latestLog?.hash,
+      commit_ts: dayjs(latestLog?.date).format('YYYY-MM-DD HH:mm:ss'),
     };
-    await uploadZips(serverUrl, data);
 
-    spinner.succeed('all file upload success');
+    const allFile = { file_name: 'all.zip', file_type: 'all', file_path: outputAll };
+    spinner?.start('upload all.zip...');
+    await uploadZips(serverUrl, { ...data, ...allFile });
+
+    const ProdFile = { file_name: 'prod.zip', file_type: 'prod', file_path: outputProd };
+    spinner?.start('upload prod.zip...');
+    await uploadZips(serverUrl, { ...data, ...ProdFile });
+
+    const SourcemapFile = { file_name: 'sourcemap.zip', file_type: 'sourcemap', file_path: outputSourcemap };
+    spinner?.start('upload sourcemap.zip...');
+    await uploadZips(serverUrl, { ...data, ...SourcemapFile });
+
+    spinner?.succeed('all file upload success 👏👏👏');
   } catch (e) {
-    console.log(e);
+    console.log(e.message);
   }
 }

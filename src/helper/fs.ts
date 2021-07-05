@@ -24,10 +24,14 @@ export function copy(src: string, dest: string, checkMatch: (filePath: string) =
 }
 
 
+export function isExist(path: string): boolean {
+  return fsEx.existsSync(path);
+}
+
 export function compress(fromDir: string, destDir: string): Promise<void> {
   const output = fs.createWriteStream(destDir);
   const archive = archiver('zip', {
-    zlib: { level: 9 }, // Sets the compression level.
+    zlib: { level: 5 }, // Sets the compression level.
   });
   archive.pipe(output);
   archive.directory(fromDir, 'dist');

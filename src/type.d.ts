@@ -29,11 +29,11 @@ export interface BackupFields {
   file_type: string
   file_path: string
 
-  git_name: string
-  git_email: string
-  git_branch: string
+  git_name?: string
+  git_email?: string
+  git_branch?: string
 
-  commit: string
-  commit_sha: string
-  commit_ts: string
+  commit?: string
+  commit_sha?: string
+  commit_ts?: string
 }

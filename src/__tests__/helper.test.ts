@@ -1,4 +1,5 @@
 import { timeNowFormat } from '../helper/time';
+import { getGitConfig } from '../helper/git';
 import dayjs from 'dayjs';
 
 it('timeNowFormat', () => {
@@ -8,3 +9,7 @@ it('timeNowFormat', () => {
   expect(diff).toEqual(1);
 });
 
+it('getGitConfig', async () => {
+  const d1 = await getGitConfig();
+  console.log(JSON.stringify(d1, null, 2));
+});

@@ -10,42 +10,29 @@ export default function register(): void {
 
   program
     .command('init')
-    .description('生成配置文件')
+    .description('generate dora cli configuration file')
     .action(async (options) => {
       await Init(options);
     });
 
   program
     .command('tag')
-    .description('生成版本信息的代码文件, 可在项目 build 前使用，build 时打包进代码里')
-    .option('-m, --msg <sting>', 'git tag 内容')
-    .option('-f, --filename <sting>', '生产的版本信息文件名 json 格式', 'version.json')
+    .description('generates the version information file')
     .action(async (options) => {
       await genVersionTag(options);
     });
 
   program
     .command('backup')
-    .description('备份打包后的产物')
+    .description('backup build files')
     .action(async (options) => {
       await backup(options);
     });
 
-  program
-    .command('sourcemap-upload')
-    .description('上传 sourcemap 到前端错误监控系统')
-    .requiredOption('-a, --appId <string>', '应用唯一 id')
-    .requiredOption('-u, --url <string>', '备份服务地址')
-    .action((options) => {
-      console.log(options);
-    });
 
   program
     .command('deploy')
-    .description('上传前端静态文件到服务器，先上传静态资源，最后覆盖 html')
-    .requiredOption('-a, --appId <string>', '应用唯一 id')
-    .requiredOption('-u, --url <string>', '备份服务地址')
-    .option('-e, --excludeSourceMap <boolean>', '备份服务地址', true)
+    .description('deploy to server')
     .action((options) => {
       console.log(options);
     });
@@ -61,10 +48,17 @@ export default function register(): void {
 //   });
 
   program
-    .command('sourcemap-restore')
-    .description('还原出源码的堆栈，目前给 golang 程序调用')
-    .requiredOption('-e, --error <string>', '压缩过得错误信息')
-    .requiredOption('-f, --file <string>', 'sourcemap 文件绝对路径')
+    .command('smu')
+    .description('upload sourcemap to front end error monitoring system Dora')
+    .action((options) => {
+      console.log(options);
+    });
+
+  program
+    .command('smr')
+    .description('restore stack information')
+    .requiredOption('-e, --error <string>', 'compressed error messages')
+    .requiredOption('-f, --file <string>', 'sourcemap file absolute path')
     .action((options) => {
       console.log(options);
     });
