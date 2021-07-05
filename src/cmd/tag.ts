@@ -2,7 +2,7 @@ import simpleGit, { SimpleGit, SimpleGitOptions } from 'simple-git';
 import chalk from 'chalk';
 import fs from 'fs/promises';
 import path from 'path';
-import { timeNowFormat } from '../helper';
+import { timeNowFormat } from '../helper/time';
 import dayjs from 'dayjs';
 
 const error = chalk.bold.red;

@@ -1,4 +1,4 @@
-import { timeNowFormat } from '../helper';
+import { timeNowFormat } from '../helper/time';
 import dayjs from 'dayjs';
 
 it('timeNowFormat', () => {

@@ -1,7 +1,10 @@
-import { loadLocalConfig } from '../config';
+import { getConfig, loadConfig } from '../config';
 
 it('loadLocalConfig', () => {
   const examplePath = `${process.cwd()}/.dora.example.yml`;
-  const conf = loadLocalConfig(examplePath);
+  loadConfig(examplePath);
+  const config = getConfig();
+
+  console.log(JSON.stringify(config, null, 2));
 });
 
