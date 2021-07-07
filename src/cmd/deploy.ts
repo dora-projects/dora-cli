@@ -73,10 +73,10 @@ export default async function(): Promise<void> {
 
   // ssh
   for (const selectEnv of selectedEnvs) {
-    const { ip, user, destDir } = selectEnv;
+    const { ip, user, destDir, env, description } = selectEnv;
     try {
       if (ip && user && destDir) {
-        spinner.start(`scp files... ${user}@${ip} destDir:${destDir}`);
+        spinner.start(`scp files... ${env} ${description}`);
         await scpFileToRemote(outputProd, user, ip, destDir);
       }
     } catch (e) {
@@ -148,9 +148,13 @@ async function scpFileToRemote(file: string, user: string, ip: string, destDir: 
   } catch (e) {
     console.log();
     console.log(chalk.red('error:', e.message));
-    console.log(chalk.red(`please copy key to host:
 
-    ssh-copy-id ${user}@${ip}`));
+    const isAuthFailed = e.message.indexOf('authentication') > -1;
+    if (isAuthFailed) {
+      console.log(chalk.red(`please copy key to host:`));
+      console.log();
+      console.log(chalk.red(`    ssh-copy-id ${user}@${ip}`));
+    }
 
     throw new Error('connect failed!');
   }
@@ -169,17 +173,18 @@ async function scpFileToRemote(file: string, user: string, ip: string, destDir: 
 
   const result = await ssh.execCommand(`cd ${remotePath} && unzip -q -o -d ${destDir} ${remoteFileName}`);
   console.log();
-  result.stdout && console.log(chalk.cyan(result.stdout));
+  result.stdout && console.log(chalk.green(result.stdout));
   result.stderr && console.log(chalk.red(result.stderr));
 
   if (result.stderr) {
     throw new Error('execCommand unzip fail!');
   }
-  console.log(chalk.cyan(`
--------------------------------------------------------------
-${timeNowFormat()}
-success deploy ${user}@${ip}  dir:${destDir}
--------------------------------------------------------------
+  console.log(chalk.green(`
+-------------------------------------------------
+time: ${timeNowFormat()}
+msg: success deploy ${user}@${ip}  
+dir: ${destDir}
+-------------------------------------------------
 `));
 
   // dispose

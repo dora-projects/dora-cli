@@ -74,7 +74,7 @@ export default function register(): void {
 // add some useful info on help
   program.on('--help', () => {
     console.log();
-    console.log(`  Run ${chalk.cyan(`dora <command> --help`)} for detailed usage of given command.`);
+    console.log(`  Run ${chalk.green(`dora <command> --help`)} for detailed usage of given command.`);
     console.log();
   });
 

@@ -51,7 +51,7 @@ export default function({ ...args }: { appId: string, url: string }): void {
 
       dumpConfig(conf);
 
-      console.log(chalk.gray('config file has Generated：') + chalk.cyan(`.dora.json`));
+      console.log(chalk.gray('config file has Generated：') + chalk.green(`.dora.json`));
       console.log();
     })
     .catch((error) => {

@@ -42,7 +42,7 @@ const genVersionTag = async (options: genVersionTagProps): Promise<void> => {
 
     await fs.writeFile(configDest, versionInfo);
 
-    console.log(chalk.cyan(`
+    console.log(chalk.green(`
 版本信息已生成！！
 文件存放在：${configDest}
 --------------------------------------------------------
