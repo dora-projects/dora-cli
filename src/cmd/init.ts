@@ -1,6 +1,7 @@
 import inquirer from 'inquirer';
 import type { Config } from '../type';
-import { dumpConfig } from '../config';
+import { isExist } from '../helper/fs';
+import { constant, dumpConfig } from '../config';
 import chalk from 'chalk';
 
 const questions = [
@@ -21,25 +22,30 @@ const questions = [
   },
 ];
 
-export default function({ ...args }: { appId: string, url: string }): void {
-  const conf: Config = {
-    base: {
-      outDir: '',
-      appId: '',
-      serverUrl: '',
+const conf: Config = {
+  base: {
+    outDir: '',
+    appId: '',
+    serverUrl: '',
+  },
+  deploy: [
+    {
+      env: 'test',
+      description: '',
+      ip: '',
+      user: '',
+      destDir: '',
     },
-    deploy: [
-      {
-        env: 'test',
-        description: '',
-        ip: '',
-        user: '',
-        destDir: '',
-      },
-    ],
-  };
+  ],
+};
 
-  // todo 是否覆盖原有文件
+export default function(): void {
+  const hasInit = isExist(`${constant.cwd}/.dora.json`);
+  if (hasInit) {
+    console.log(chalk.red(`config file is exist: .dora.json `));
+    return;
+  }
+
   inquirer
     .prompt(questions)
     .then((answers) => {

@@ -19,7 +19,7 @@ const outputProd = `${cwd}/tmp/dora/prod.zip`;
 const outputSourcemap = `${cwd}/tmp/dora/sourcemap.zip`;
 
 // 备份构建产物
-export default async function({ ...args }: { appId: string, url: string }): Promise<void> {
+export default async function(): Promise<void> {
   const conf = getConfig();
   if (!conf) return;
   const dir = conf.base.outDir;

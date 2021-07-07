@@ -17,7 +17,7 @@ export interface Env {
   destDir: string;
 }
 
-export interface BackupFields {
+export interface UploadBackupFields {
   appId: string
   project_name: string
 
@@ -32,4 +32,13 @@ export interface BackupFields {
   commit?: string
   commit_sha?: string
   commit_ts?: string
+}
+
+
+export interface UploadSourcemapFields {
+  appId: string
+  project_name: string
+
+  file_name: string
+  file_path: string
 }

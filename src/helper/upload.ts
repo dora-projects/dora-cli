@@ -1,9 +1,9 @@
 import axios from 'axios';
 import FormData from 'form-data';
 import fs from 'fs';
-import type { BackupFields } from '../type';
+import type { UploadBackupFields, UploadSourcemapFields } from '../type';
 
-export function uploadZips(url: string, data: BackupFields): Promise<void> {
+export function uploadZips(url: string, data: UploadBackupFields): Promise<void> {
   const form = new FormData();
   form.append('appId', data.appId);
   form.append('project_name', data.project_name);
@@ -23,6 +23,22 @@ export function uploadZips(url: string, data: BackupFields): Promise<void> {
   form.append('commit_ts', data.commit_ts);
 
   return axios.post(`${url}/api/project/upload/backup`, form, {
+    headers: form.getHeaders(),
+  });
+}
+
+
+export function uploadSourcemapZips(url: string, data: UploadSourcemapFields): Promise<void> {
+  const form = new FormData();
+  form.append('appId', data.appId);
+  form.append('project_name', data.project_name);
+
+  form.append('file_name', data.file_name);
+  form.append('file', fs.createReadStream(data.file_path), {
+    filename: data.file_name,
+  });
+
+  return axios.post(`${url}/api/project/upload/sourcemap`, form, {
     headers: form.getHeaders(),
   });
 }

@@ -4,6 +4,14 @@ import type { Config } from './type';
 
 let _conf: Config|null = null;
 
+const cwd = process.cwd();
+
+export const constant = {
+  cwd : process.cwd(),
+  tmpSourcemapDir: `${cwd}/tmp/dora/sourcemap`,
+  outputSourcemap: `${cwd}/tmp/dora/sourcemap.zip`,
+};
+
 export function loadConfig(path: string): Config|null {
   try {
     const configStr = fs.readFileSync(path, 'utf8');
