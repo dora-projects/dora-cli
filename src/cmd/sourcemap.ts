@@ -37,7 +37,7 @@ please check you base.outDir config or build you project!`);
   try {
     spinner.start('compress sourcemap files...');
     await compress(constant.tmpSourcemapDir, constant.outputSourcemap);
-    spinner.succeed('compress file finished 🐂🐂👍👍👍');
+    spinner.succeed('compress file finished');
   } catch (e) {
     console.log(e);
   }
@@ -45,6 +45,9 @@ please check you base.outDir config or build you project!`);
   // 上传
   await stepUpload(appId, serverUrl);
   spinner.stop();
+  console.log('--------------------------------')
+  console.log("  upload sourcemap success!")
+  console.log('--------------------------------')
 };
 
 
@@ -61,8 +64,9 @@ async function stepUpload(appId: string, serverUrl: string) {
     spinner?.start('upload sourcemap.zip...');
     await uploadSourcemapZips(serverUrl, { ...data, ...SourcemapFile });
 
-    spinner?.succeed('all file upload success 👏👏👏');
+    spinner?.succeed('all file upload success 👏');
   } catch (e) {
-    console.log(e.message);
+    console.log()
+    console.log(chalk.red(`upload got error: ${e.message}`));
   }
 }

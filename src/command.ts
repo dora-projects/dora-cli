@@ -19,9 +19,9 @@ export default function register(): void {
 
   program
     .command('tag')
-    .description('generates the version information file')
-    .action(async (options) => {
-      await genVersionTag(options);
+    .description('generates the version tag info file')
+    .action(async () => {
+      await genVersionTag();
     });
 
   program
