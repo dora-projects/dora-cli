@@ -30,19 +30,8 @@ export default function({ ...args }: { appId: string, url: string }): void {
     },
     deploy: [
       {
-        env: 'dev',
-        remarks: '',
-        hosts: [
-          {
-            ip: '',
-            user: '',
-            destDir: '',
-          },
-        ],
-      },
-      {
         env: 'test',
-        remarks: '',
+        description: '',
         hosts: [
           {
             ip: '',

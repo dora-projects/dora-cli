@@ -11,7 +11,7 @@ export interface Base {
 
 export interface Env {
   env: string;
-  remarks: string;
+  description: string;
   hosts: Host[]
 }
 

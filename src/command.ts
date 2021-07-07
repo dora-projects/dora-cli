@@ -32,7 +32,7 @@ export default function register(): void {
 
   program
     .command('deploy')
-    .description('deploy to server')
+    .description('deploy build file to test server')
     .action(async (options) => {
       await deploy();
     });

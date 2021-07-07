@@ -2,10 +2,25 @@ import chalk from 'chalk';
 import os from 'os';
 import { compress, copy } from '../helper/fs';
 import ora from 'ora';
+import Joi from 'joi';
 import inquirer from 'inquirer';
 import { NodeSSH } from 'node-ssh';
 import dayjs from 'dayjs';
 import { getConfig } from '../config';
+
+const deploySchema = Joi.array().min(1).items(
+  Joi.object({
+    env: Joi.string().required(),
+    description: Joi.string().required(),
+    hosts: Joi.array().min(1).items(
+      Joi.object({
+        ip: Joi.string().ip().required(),
+        user: Joi.string().required(),
+        destDir: Joi.string().required(),
+      }),
+    ),
+  }),
+);
 
 const cwd = process.cwd();
 const tmpProdDir = `${cwd}/tmp/dora/prod`;
@@ -16,16 +31,24 @@ let spinner: ora.Ora|null = null;
 export default async function(): Promise<void> {
   const conf = getConfig();
   if (!conf) return;
-  if (!Array.isArray(conf.deploy) || conf.deploy.length <= 0) {
-    console.log(chalk.yellow(`please add deploy env config`));
+
+  // 校验
+  const validate = deploySchema.validate(conf.deploy);
+  if (validate.error) {
+    console.log();
+    console.log(chalk.redBright('incorrect！ please check deploy env config'));
+    console.log();
+    console.log(chalk.red(JSON.stringify(validate.error, null, 2)));
+    console.log();
     return;
   }
 
-  const envs = conf.deploy.map((i) => i.env).filter((i) => Boolean(i));
-  if (envs.length <= 0) {
-    console.log(chalk.yellow(`incorrect！ please check deploy env config`));
-    return;
-  }
+  const envsOptions = conf.deploy?.map((i) => {
+    return {
+      name: `${i.env} (${i.description})`,
+      value: i.env,
+    };
+  });
 
   const dir = conf.base.outDir;
   const absOutDir = `${cwd}/${dir}`;
@@ -34,9 +57,9 @@ export default async function(): Promise<void> {
   const { values: userChoiceValues } = await inquirer
     .prompt([{
       type: 'checkbox',
-      message: 'Select env to deploy',
+      message: 'select env to deploy',
       name: 'values',
-      choices: envs,
+      choices: envsOptions,
       validate(answer) {
         if (answer.length < 1) {
           return 'You must choose at least one env.';
@@ -74,7 +97,7 @@ export default async function(): Promise<void> {
   try {
     spinner.start('compress prod files...');
     await compress(tmpProdDir, outputProd);
-    spinner.succeed('compress file finished 👍');
+    spinner.succeed('compress file finished');
     //
   } catch (e) {
     console.log(e);
@@ -82,7 +105,7 @@ export default async function(): Promise<void> {
 
   // ssh
   spinner.start('ssh hosts deliver prod files...');
-  const selectEnvs = conf.deploy.filter((i) => userChoiceValues.indexOf(i.env) > -1);
+  const selectEnvs = conf.deploy?.filter((i) => userChoiceValues.indexOf(i.env) > -1) || [];
   for (const selectEnv of selectEnvs) {
     for (const host of selectEnv.hosts) {
       try {
@@ -90,22 +113,38 @@ export default async function(): Promise<void> {
           await scpFileToRemote(outputProd, host.ip, host.user, host.destDir);
         }
       } catch (e) {
-        console.log('error:', e);
+        console.log();
+        console.log(chalk.red('info:', e.message));
+        spinner.stop();
+        return;
       }
     }
   }
-  spinner.succeed('deploy finished! 🐂👍');
+  spinner.succeed('deploy finished! 😀');
   spinner.stop();
 }
 
 async function scpFileToRemote(file: string, ip: string, user: string, destDir: string): Promise<void> {
   const ssh = new NodeSSH();
-  const conn = await ssh.connect({
-    host: ip,
-    username: user,
-    port: 22,
-    privateKey: `${os.homedir()}/.ssh/id_rsa`,
-  });
+
+  let conn;
+  try {
+    conn = await ssh.connect({
+      host: ip,
+      username: user,
+      port: 22,
+      privateKey: `${os.homedir()}/.ssh/id_rsa`,
+    });
+  } catch (e) {
+    console.log();
+    console.log(chalk.red('error:', e.message));
+    console.log(chalk.red(`please try to login host:
+
+    ssh-copy-id ${user}@${ip}`));
+
+    throw new Error('connect failed!');
+  }
+
   if (!conn.isConnected()) {
     console.log('connect failed!');
     return;
