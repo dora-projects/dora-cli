@@ -12,10 +12,6 @@ export interface Base {
 export interface Env {
   env: string;
   description: string;
-  hosts: Host[]
-}
-
-export interface Host {
   ip: string;
   user: string;
   destDir: string;

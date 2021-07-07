@@ -32,13 +32,9 @@ export default function({ ...args }: { appId: string, url: string }): void {
       {
         env: 'test',
         description: '',
-        hosts: [
-          {
-            ip: '',
-            user: '',
-            destDir: '',
-          },
-        ],
+        ip: '',
+        user: '',
+        destDir: '',
       },
     ],
   };
@@ -55,7 +51,7 @@ export default function({ ...args }: { appId: string, url: string }): void {
 
       dumpConfig(conf);
 
-      console.log(chalk.gray('config file has Generated：') + chalk.greenBright(`.dora.json`));
+      console.log(chalk.gray('config file has Generated：') + chalk.cyan(`.dora.json`));
       console.log();
     })
     .catch((error) => {
