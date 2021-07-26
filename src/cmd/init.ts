@@ -30,7 +30,7 @@ const conf: Config = {
   },
   deploy: [
     {
-      env: 'test',
+      label: 'test',
       description: '',
       ip: '',
       user: '',

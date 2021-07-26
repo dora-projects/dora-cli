@@ -8,11 +8,11 @@ import inquirer from 'inquirer';
 import { NodeSSH } from 'node-ssh';
 import dayjs from 'dayjs';
 import { getConfig } from '../config';
-import { Config, Env } from '../type';
+import { Config, Machine } from '../type';
 
 const deploySchema = Joi.array().min(1).items(
   Joi.object({
-    env: Joi.string().required(),
+    label: Joi.string().required(),
     description: Joi.string().required(),
     ip: Joi.string().ip().required(),
     user: Joi.string().required(),
@@ -73,10 +73,10 @@ export default async function(): Promise<void> {
 
   // ssh
   for (const selectEnv of selectedEnvs) {
-    const { ip, user, destDir, env, description } = selectEnv;
+    const { ip, user, destDir, label, description } = selectEnv;
     try {
       if (ip && user && destDir) {
-        spinner.start(`scp files... ${env} ${description}`);
+        spinner.start(`scp files... ${label} ${description}`);
         await scpFileToRemote(outputProd, user, ip, destDir);
       }
     } catch (e) {
@@ -90,11 +90,11 @@ export default async function(): Promise<void> {
   spinner.stop();
 }
 
-async function userQuestion(conf: Config): Promise<Env[]|null> {
+async function userQuestion(conf: Config): Promise<Machine[]|null> {
   const options = conf.deploy?.map((i) => {
     return {
-      name: `${i.env} ${i.description} ${i.ip}`,
-      value: i.ip,
+      name: `【${i.label} ${i.description} ${i.ip}】`,
+      value: i.label,
     };
   });
 
@@ -113,15 +113,14 @@ async function userQuestion(conf: Config): Promise<Env[]|null> {
       },
     }]);
 
-  // 确认
-  // const selectedOptions = options?.filter((i) => userChoiceValues.indexOf(i.value) > -1) || [];
-  // const confirmTxt = `${selectedOptions.map((op) => op.name).join('\n')}`;
+  const checkedMachine = conf.deploy?.filter((i) => userChoiceValues.includes(i.label)) || [];
 
+  // 确认
   const { values: confirm } = await inquirer
     .prompt([{
       type: 'confirm',
       name: 'values',
-      message: `are you sure deploy`,
+      message: `are you sure deploy to \n\n ${chalk.green(JSON.stringify(checkedMachine, null, 2))} \n\n`,
       default: false,
     }]);
 
@@ -131,7 +130,7 @@ async function userQuestion(conf: Config): Promise<Env[]|null> {
     throw new Error('canceled!');
   }
 
-  return conf.deploy?.filter((i) => userChoiceValues.indexOf(i.ip) > -1) || [];
+  return checkedMachine;
 }
 
 async function scpFileToRemote(file: string, user: string, ip: string, destDir: string): Promise<void> {

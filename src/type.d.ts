@@ -1,6 +1,6 @@
 export interface Config {
   base: Base;
-  deploy?: Env[];
+  deploy?: Machine[];
 }
 
 export interface Base {
@@ -9,8 +9,8 @@ export interface Base {
   serverUrl: string;
 }
 
-export interface Env {
-  env: string;
+export interface Machine {
+  label: string;
   description: string;
   ip: string;
   user: string;
