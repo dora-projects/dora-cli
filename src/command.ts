@@ -33,9 +33,10 @@ export default function register(): void {
 
   program
     .command('deploy')
+    .option('-l, --labels [labels...]', 'output extra debugging')
     .description('deploy build file to test server')
-    .action(async () => {
-      await deploy();
+    .action(async ({labels}) => {
+      await deploy(labels);
     });
 
   program

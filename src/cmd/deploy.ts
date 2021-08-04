@@ -26,7 +26,7 @@ const outputProd = `${cwd}/tmp/dora/prod.zip`;
 
 let spinner: ora.Ora|null = null;
 
-export default async function(): Promise<void> {
+export default async function(labels: string[]): Promise<void> {
   const conf = getConfig();
   if (!conf) return;
 
@@ -43,13 +43,20 @@ export default async function(): Promise<void> {
   const dir = conf.base.outDir;
   const absOutDir = `${cwd}/${dir}`;
 
-  // 询问
-  let selectedEnvs;
-  try {
-    selectedEnvs = await userQuestion(conf) || [];
-  } catch (e) {
-    return;
+  let deployLists;
+
+  // 不询问
+  if (labels) {
+    deployLists = conf.deploy?.filter((i) => labels.includes(i.label)) || [];
+  } else {
+    // 询问
+    try {
+      deployLists = await userQuestion(conf) || [];
+    } catch (e) {
+      return;
+    }
   }
+
 
   // 复制
   try {
@@ -72,8 +79,8 @@ export default async function(): Promise<void> {
   }
 
   // ssh
-  for (const selectEnv of selectedEnvs) {
-    const { ip, user, destDir, label, description } = selectEnv;
+  for (const deployItem of deployLists) {
+    const { ip, user, destDir, label, description } = deployItem;
     try {
       if (ip && user && destDir) {
         spinner.start(`scp files... ${label} ${description}`);
