@@ -1,14 +1,14 @@
 import chalk from 'chalk';
 import os from 'os';
-import { compress, copy } from '../helper/fs';
-import { timeNowFormat } from '../helper/time';
+import { compress, copy } from 'src/helper/fs';
+import { timeNowFormat } from 'src/helper/time';
 import ora from 'ora';
 import Joi from 'joi';
 import inquirer from 'inquirer';
 import { NodeSSH } from 'node-ssh';
 import dayjs from 'dayjs';
-import { getConfig } from '../config';
-import { Config, Machine } from '../type';
+import { getConfig } from 'src/config';
+import { Config, Machine } from 'src/type';
 
 const deploySchema = Joi.array().min(1).items(
   Joi.object({

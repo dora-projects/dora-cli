@@ -1,8 +1,8 @@
 import path from 'path';
 import ora from 'ora';
-import { getConfig, constant } from '../config';
-import { uploadSourcemapZips } from '../helper/upload';
-import { compress, copy, isExist } from '../helper/fs';
+import { getConfig, constant } from 'src/config';
+import { uploadSourcemapZips } from 'src/helper/upload';
+import { compress, copy, isExist } from 'src/helper/fs';
 import chalk from 'chalk';
 
 let spinner: ora.Ora|null = null;

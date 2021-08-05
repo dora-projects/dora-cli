@@ -6,13 +6,19 @@
     "moduleResolution": "node",
     "noImplicitReturns": true,
     "resolveJsonModule": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "src/*": [
+        "./src/*"
+      ]
+    }
   },
   "include": [
     "src"
   ],
   "exclude": [
     "node_modules",
-    "dist",
+    "dist"
   ]
 }

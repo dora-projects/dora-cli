@@ -2,8 +2,8 @@ import chalk from 'chalk';
 import fs from 'fs/promises';
 import path from 'path';
 import dayjs from 'dayjs';
-import { timeNowFormat } from '../helper/time';
-import { getGitConfig, getGitLogs } from '../helper/git';
+import { timeNowFormat } from 'src/helper/time';
+import { getGitLogs } from 'src/helper/git';
 
 const error = chalk.bold.red;
 

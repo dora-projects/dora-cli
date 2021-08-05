@@ -1,11 +1,11 @@
 import path from 'path';
 import ora from 'ora';
 import dayjs from 'dayjs';
-import { getConfig } from '../config';
-import { uploadZips } from '../helper/upload';
-import { getGitLogs, git } from '../helper/git';
-import { compress, copy, isExist } from '../helper/fs';
 import chalk from 'chalk';
+import { getConfig } from 'src/config';
+import { uploadZips } from 'src/helper/upload';
+import { getGitLogs, git } from 'src/helper/git';
+import { compress, copy, isExist } from 'src/helper/fs';
 
 const cwd = process.cwd();
 let spinner: ora.Ora|null = null;
@@ -63,9 +63,9 @@ please check you base.outDir config or build you project!`);
   // 上传
   await stepUpload(appId, serverUrl);
   spinner.stop();
-  console.log('--------------------------------')
-  console.log("     backup success!")
-  console.log('--------------------------------')
+  console.log('--------------------------------');
+  console.log('     backup success!');
+  console.log('--------------------------------');
 }
 
 
