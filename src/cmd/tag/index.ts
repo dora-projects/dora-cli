@@ -42,6 +42,7 @@ ${versionInfo}
     `));
 
   } catch (e) {
+  const err = e as Error;
     console.log(error(e));
   }
 };

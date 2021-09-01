@@ -7,7 +7,7 @@ let _conf: Config|null = null;
 const cwd = process.cwd();
 
 export const constant = {
-  cwd : process.cwd(),
+  cwd: process.cwd(),
   tmpSourcemapDir: `${cwd}/tmp/dora/sourcemap`,
   outputSourcemap: `${cwd}/tmp/dora/sourcemap.zip`,
 };
@@ -31,9 +31,11 @@ export function dumpConfig(conf: Config): void {
     const cwd = process.cwd();
     fs.writeFileSync(`${cwd}/.dora.json`, JSON.stringify(conf, null, 2));
   } catch (e) {
+    const err = e as Error;
+
     console.log(chalk.blue(`
 --------------------------------------------------------------
-  error: ${chalk.red(e.message)}
+  error: ${chalk.red(err?.message)}
 --------------------------------------------------------------
 `));
   }

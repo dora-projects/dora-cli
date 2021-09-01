@@ -87,8 +87,9 @@ export default async function(labels: string[]): Promise<void> {
         await scpFileToRemote(outputProd, user, ip, destDir);
       }
     } catch (e) {
+      const err = e as Error;
       console.log();
-      console.log(chalk.red('info:', e.message));
+      console.log(chalk.red('info:', err.message));
       spinner.stop();
       return;
     }
@@ -152,10 +153,12 @@ async function scpFileToRemote(file: string, user: string, ip: string, destDir: 
       privateKey: `${os.homedir()}/.ssh/id_rsa`,
     });
   } catch (e) {
-    console.log();
-    console.log(chalk.red('error:', e.message));
+    const err = e as Error;
 
-    const isAuthFailed = e.message.indexOf('authentication') > -1;
+    console.log();
+    console.log(chalk.red('error:', err.message));
+
+    const isAuthFailed = err.message.indexOf('authentication') > -1;
     if (isAuthFailed) {
       console.log(chalk.red(`please copy key to host:`));
       console.log();

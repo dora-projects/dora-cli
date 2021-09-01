@@ -104,6 +104,6 @@ async function stepUpload(appId: string, serverUrl: string) {
 
     spinner?.succeed('all file upload success 👏');
   } catch (e) {
-    console.log(e.message);
+    console.log(e);
   }
 }

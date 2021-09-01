@@ -45,9 +45,9 @@ please check you base.outDir config or build you project!`);
   // 上传
   await stepUpload(appId, serverUrl);
   spinner.stop();
-  console.log('--------------------------------')
-  console.log("  upload sourcemap success!")
-  console.log('--------------------------------')
+  console.log('--------------------------------');
+  console.log('  upload sourcemap success!');
+  console.log('--------------------------------');
 };
 
 
@@ -66,7 +66,8 @@ async function stepUpload(appId: string, serverUrl: string) {
 
     spinner?.succeed('all file upload success 👏');
   } catch (e) {
-    console.log()
-    console.log(chalk.red(`upload got error: ${e.message}`));
+    const err = e as Error;
+    console.log();
+    console.log(chalk.red(`upload got error: ${err.message}`));
   }
 }
