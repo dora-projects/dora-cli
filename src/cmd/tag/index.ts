@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import dayjs from 'dayjs';
 import { timeNowFormat } from 'src/helper/time';
-import { getGitLogs } from 'src/helper/git';
+import { git, getGitLogs } from 'src/helper/git';
 
 const error = chalk.bold.red;
 
@@ -12,18 +12,20 @@ const genVersionTag = async (): Promise<void> => {
   const configDest = path.resolve(pwd, '.dora_tag.json');
 
   try {
+    const nowDay = dayjs().format('MMDDHHmm');
+    const shortHash = await git.raw('log', '-1', '--pretty=format:%h');
+    const versionTag = `${nowDay}@${shortHash}`;
+
     const now = timeNowFormat();
     const logs = await getGitLogs();
     const latestLog = logs.latest;
-
-    // const config = await getGitConfig();
-    // console.log(config)
 
     const versionInfo = JSON.stringify({
       author: latestLog?.author_name,
       author_mail: latestLog?.author_email,
       author_msg: latestLog?.message,
       commit_hash: latestLog?.hash,
+      commit_short_hash: versionTag,
       commit_at: latestLog?.date && dayjs(latestLog?.date).format('YYYY-MM-DD HH:mm:ss'),
       timestamp: now,
     }, null, 2);
@@ -42,7 +44,6 @@ ${versionInfo}
     `));
 
   } catch (e) {
-  const err = e as Error;
     console.log(error(e));
   }
 };
