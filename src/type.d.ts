@@ -1,15 +1,15 @@
-export interface Config {
+interface Config {
   base: Base;
   deploy?: Machine[];
 }
 
-export interface Base {
+interface Base {
   outDir: string;
   appId: string;
   serverUrl: string;
 }
 
-export interface Machine {
+interface Machine {
   label: string;
   description: string;
   ip: string;
@@ -17,7 +17,7 @@ export interface Machine {
   destDir: string;
 }
 
-export interface UploadBackupFields {
+interface UploadBackupFields {
   appId: string
   project_name: string
 
@@ -35,7 +35,7 @@ export interface UploadBackupFields {
 }
 
 
-export interface UploadSourcemapFields {
+interface UploadSourcemapFields {
   appId: string
   project_name: string
 

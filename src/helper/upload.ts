@@ -1,7 +1,6 @@
 import axios from 'axios';
 import FormData from 'form-data';
 import fs from 'fs';
-import type { UploadBackupFields, UploadSourcemapFields } from '../type';
 
 export function uploadZips(url: string, data: UploadBackupFields): Promise<void> {
   const form = new FormData();

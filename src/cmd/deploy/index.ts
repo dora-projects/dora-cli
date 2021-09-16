@@ -8,7 +8,6 @@ import inquirer from 'inquirer';
 import { NodeSSH } from 'node-ssh';
 import dayjs from 'dayjs';
 import { getConfig } from 'src/config';
-import { Config, Machine } from 'src/type';
 
 const deploySchema = Joi.array().min(1).items(
   Joi.object({

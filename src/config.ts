@@ -1,6 +1,5 @@
 import fs from 'fs';
 import chalk from 'chalk';
-import type { Config } from './type';
 
 let _conf: Config|null = null;
 

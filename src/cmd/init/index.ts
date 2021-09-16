@@ -1,5 +1,4 @@
 import inquirer from 'inquirer';
-import type { Config } from 'src/type';
 import { isExist } from 'src/helper/fs';
 import { constant, dumpConfig } from 'src/config';
 import chalk from 'chalk';
