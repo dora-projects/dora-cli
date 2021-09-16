@@ -1,5 +1,5 @@
-import { timeNowFormat } from '../helper/time';
-import { getGitConfig } from '../helper/git';
+import { timeNowFormat } from './time';
+import { getGitConfig } from './git';
 import dayjs from 'dayjs';
 
 it('timeNowFormat', () => {
