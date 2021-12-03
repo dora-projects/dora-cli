@@ -5,7 +5,7 @@ interface Config {
 
 interface Base {
   outDir: string;
-  appId: string;
+  appKey: string;
   serverUrl: string;
 }
 
@@ -18,7 +18,7 @@ interface Machine {
 }
 
 interface UploadBackupFields {
-  appId: string
+  appKey: string
   project_name: string
 
   file_name: string
@@ -36,7 +36,7 @@ interface UploadBackupFields {
 
 
 interface UploadSourcemapFields {
-  appId: string
+  appKey: string
   project_name: string
 
   file_name: string

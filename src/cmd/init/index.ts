@@ -11,8 +11,8 @@ const questions = [
   },
   {
     type: 'input',
-    name: 'appId',
-    message: 'What\'s your appId:',
+    name: 'appKey',
+    message: 'What\'s your appKey:',
   },
   {
     type: 'input',
@@ -24,7 +24,7 @@ const questions = [
 const conf: Config = {
   base: {
     outDir: '',
-    appId: '',
+    appKey: '',
     serverUrl: '',
   },
   deploy: [
@@ -48,10 +48,10 @@ export default function(): void {
   inquirer
     .prompt(questions)
     .then((answers) => {
-      const { outDir, appId, serverUrl } = answers;
+      const { outDir, appKey, serverUrl } = answers;
 
       conf.base.outDir = outDir;
-      conf.base.appId = appId;
+      conf.base.appKey = appKey;
       conf.base.serverUrl = serverUrl;
 
       dumpConfig(conf);

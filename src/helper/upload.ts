@@ -4,7 +4,8 @@ import fs from 'fs';
 
 export function uploadZips(url: string, data: UploadBackupFields): Promise<void> {
   const form = new FormData();
-  form.append('appId', data.appId);
+  form.append('type', "artifact");
+  form.append('appKey', data.appKey);
   form.append('project_name', data.project_name);
 
   form.append('file_name', data.file_name);
@@ -21,7 +22,7 @@ export function uploadZips(url: string, data: UploadBackupFields): Promise<void>
   form.append('commit_sha', data.commit_sha);
   form.append('commit_ts', data.commit_ts);
 
-  return axios.post(`${url}/api/project/upload/backup`, form, {
+  return axios.post(`${url}/manager/file/upload`, form, {
     headers: form.getHeaders(),
   });
 }
@@ -29,7 +30,8 @@ export function uploadZips(url: string, data: UploadBackupFields): Promise<void>
 
 export function uploadSourcemapZips(url: string, data: UploadSourcemapFields): Promise<void> {
   const form = new FormData();
-  form.append('appId', data.appId);
+  form.append('type', "sourcemap");
+  form.append('appKey', data.appKey);
   form.append('project_name', data.project_name);
 
   form.append('file_name', data.file_name);
@@ -37,7 +39,7 @@ export function uploadSourcemapZips(url: string, data: UploadSourcemapFields): P
     filename: data.file_name,
   });
 
-  return axios.post(`${url}/api/project/upload/sourcemap`, form, {
+  return axios.post(`${url}/manager/file/upload`, form, {
     headers: form.getHeaders(),
   });
 }

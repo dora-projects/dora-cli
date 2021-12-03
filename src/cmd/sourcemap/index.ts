@@ -11,7 +11,7 @@ export default async function uploadSourcemap(): Promise<void> {
   if (!conf) return;
 
   const dir = conf.base.outDir;
-  const appId = conf.base.appId;
+  const appKey = conf.base.appKey;
   const serverUrl = conf.base.serverUrl;
   const absOutDir = `${constant.cwd}/${dir}`;
 
@@ -43,7 +43,7 @@ please check you base.outDir config or build you project!`);
   }
 
   // 上传
-  await stepUpload(appId, serverUrl);
+  await stepUpload(appKey, serverUrl);
   spinner.stop();
   console.log('--------------------------------');
   console.log('  upload sourcemap success!');
@@ -51,12 +51,12 @@ please check you base.outDir config or build you project!`);
 };
 
 
-async function stepUpload(appId: string, serverUrl: string) {
+async function stepUpload(appKey: string, serverUrl: string) {
   try {
     spinner?.start('upload files... 😝');
 
     const data = {
-      appId,
+      appKey,
       project_name: path.basename(constant.cwd),
     };
 

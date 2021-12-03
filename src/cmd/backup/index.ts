@@ -23,7 +23,7 @@ export default async function(): Promise<void> {
   const conf = getConfig();
   if (!conf) return;
   const dir = conf.base.outDir;
-  const appId = conf.base.appId;
+  const appKey = conf.base.appKey;
   const serverUrl = conf.base.serverUrl;
   const absOutDir = `${cwd}/${dir}`;
 
@@ -61,7 +61,7 @@ please check you base.outDir config or build you project!`);
   }
 
   // 上传
-  await stepUpload(appId, serverUrl);
+  await stepUpload(appKey, serverUrl);
   spinner.stop();
   console.log('--------------------------------');
   console.log('     backup success!');
@@ -69,7 +69,7 @@ please check you base.outDir config or build you project!`);
 }
 
 
-async function stepUpload(appId: string, serverUrl: string) {
+async function stepUpload(appKey: string, serverUrl: string) {
   try {
     spinner?.start('upload files... 😝');
 
@@ -78,7 +78,7 @@ async function stepUpload(appId: string, serverUrl: string) {
     const latestLog = logs.latest;
 
     const data = {
-      appId,
+      appKey,
       project_name: path.basename(cwd),
 
       git_name: latestLog?.author_name,
