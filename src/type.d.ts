@@ -7,6 +7,7 @@ interface Base {
   outDir: string;
   appKey: string;
   serverUrl: string;
+  accessToken: string;
 }
 
 interface Machine {

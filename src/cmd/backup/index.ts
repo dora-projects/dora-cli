@@ -2,10 +2,11 @@ import path from 'path';
 import ora from 'ora';
 import dayjs from 'dayjs';
 import chalk from 'chalk';
-import { getConfig } from 'src/config';
+import { constant, getConfig } from 'src/config';
 import { uploadZips } from 'src/helper/upload';
 import { getGitLogs, git } from 'src/helper/git';
 import { compress, copy, isExist } from 'src/helper/fs';
+import Joi from 'joi';
 
 const cwd = process.cwd();
 let spinner: ora.Ora|null = null;
@@ -18,14 +19,32 @@ const outputAll = `${cwd}/tmp/dora/all.zip`;
 const outputProd = `${cwd}/tmp/dora/prod.zip`;
 const outputSourcemap = `${cwd}/tmp/dora/sourcemap.zip`;
 
+
+const backupConfigSourcemap = Joi.object({
+  outDir: Joi.string().required(),
+  appKey: Joi.string().required(),
+  serverUrl: Joi.string().required(),
+  accessToken: Joi.string().required(),
+});
+
+
 // 备份构建产物
 export default async function(): Promise<void> {
   const conf = getConfig();
   if (!conf) return;
-  const dir = conf.base.outDir;
-  const appKey = conf.base.appKey;
-  const serverUrl = conf.base.serverUrl;
-  const absOutDir = `${cwd}/${dir}`;
+
+  const validate = backupConfigSourcemap.validate(conf.base);
+  if (validate.error) {
+    console.log();
+    console.log(chalk.redBright('incorrect！ please check config file .dora.json'));
+    console.log();
+    console.log(chalk.red(JSON.stringify(validate.error, null, 2)));
+    console.log();
+    return;
+  }
+
+  const { outDir, accessToken, appKey, serverUrl } = conf.base;
+  const absOutDir = `${constant.cwd}/${outDir}`;
 
   if (!isExist(absOutDir)) {
     console.log();
@@ -61,7 +80,7 @@ please check you base.outDir config or build you project!`);
   }
 
   // 上传
-  await stepUpload(appKey, serverUrl);
+  await stepUpload(accessToken, appKey, serverUrl);
   spinner.stop();
   console.log('--------------------------------');
   console.log('     backup success!');
@@ -69,7 +88,7 @@ please check you base.outDir config or build you project!`);
 }
 
 
-async function stepUpload(appKey: string, serverUrl: string) {
+async function stepUpload(accessToken: string, appKey: string, serverUrl: string) {
   try {
     spinner?.start('upload files... 😝');
 
@@ -92,15 +111,15 @@ async function stepUpload(appKey: string, serverUrl: string) {
 
     const allFile = { file_name: 'all.zip', file_type: 'all', file_path: outputAll };
     spinner?.start('upload all.zip...');
-    await uploadZips(serverUrl, { ...data, ...allFile });
+    await uploadZips(serverUrl, accessToken, { ...data, ...allFile });
 
     const ProdFile = { file_name: 'prod.zip', file_type: 'prod', file_path: outputProd };
     spinner?.start('upload prod.zip...');
-    await uploadZips(serverUrl, { ...data, ...ProdFile });
+    await uploadZips(serverUrl, accessToken, { ...data, ...ProdFile });
 
     const SourcemapFile = { file_name: 'sourcemap.zip', file_type: 'sourcemap', file_path: outputSourcemap };
     spinner?.start('upload sourcemap.zip...');
-    await uploadZips(serverUrl, { ...data, ...SourcemapFile });
+    await uploadZips(serverUrl, accessToken, { ...data, ...SourcemapFile });
 
     spinner?.succeed('all file upload success 👏');
   } catch (e) {

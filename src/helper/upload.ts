@@ -2,9 +2,9 @@ import axios from 'axios';
 import FormData from 'form-data';
 import fs from 'fs';
 
-export function uploadZips(url: string, data: UploadBackupFields): Promise<void> {
+export function uploadZips(url: string, accessToken: string, data: UploadBackupFields): Promise<void> {
   const form = new FormData();
-  form.append('type', "artifact");
+  form.append('type', 'artifact');
   form.append('appKey', data.appKey);
   form.append('project_name', data.project_name);
 
@@ -28,9 +28,9 @@ export function uploadZips(url: string, data: UploadBackupFields): Promise<void>
 }
 
 
-export function uploadSourcemapZips(url: string, data: UploadSourcemapFields): Promise<void> {
+export function uploadSourcemapZips(url: string, accessToken: string, data: UploadSourcemapFields): Promise<void> {
   const form = new FormData();
-  form.append('type', "sourcemap");
+  form.append('type', 'sourcemap');
   form.append('appKey', data.appKey);
   form.append('project_name', data.project_name);
 

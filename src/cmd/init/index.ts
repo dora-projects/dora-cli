@@ -26,6 +26,7 @@ const conf: Config = {
     outDir: '',
     appKey: '',
     serverUrl: '',
+    accessToken: '',
   },
   deploy: [
     {

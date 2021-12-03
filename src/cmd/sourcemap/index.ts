@@ -4,16 +4,32 @@ import { getConfig, constant } from 'src/config';
 import { uploadSourcemapZips } from 'src/helper/upload';
 import { compress, copy, isExist } from 'src/helper/fs';
 import chalk from 'chalk';
+import Joi from 'joi';
+
+const uploadConfigSourcemap = Joi.object({
+  outDir: Joi.string().required(),
+  appKey: Joi.string().required(),
+  serverUrl: Joi.string().required(),
+  accessToken: Joi.string().required(),
+});
 
 let spinner: ora.Ora|null = null;
 export default async function uploadSourcemap(): Promise<void> {
   const conf = getConfig();
   if (!conf) return;
 
-  const dir = conf.base.outDir;
-  const appKey = conf.base.appKey;
-  const serverUrl = conf.base.serverUrl;
-  const absOutDir = `${constant.cwd}/${dir}`;
+  const validate = uploadConfigSourcemap.validate(conf.base);
+  if (validate.error) {
+    console.log();
+    console.log(chalk.redBright('incorrect！ please check config file .dora.json'));
+    console.log();
+    console.log(chalk.red(JSON.stringify(validate.error, null, 2)));
+    console.log();
+    return;
+  }
+
+  const { outDir, accessToken, appKey, serverUrl } = conf.base;
+  const absOutDir = `${constant.cwd}/${outDir}`;
 
   if (!isExist(absOutDir)) {
     console.log();
@@ -43,7 +59,7 @@ please check you base.outDir config or build you project!`);
   }
 
   // 上传
-  await stepUpload(appKey, serverUrl);
+  await stepUpload(accessToken, appKey, serverUrl);
   spinner.stop();
   console.log('--------------------------------');
   console.log('  upload sourcemap success!');
@@ -51,23 +67,24 @@ please check you base.outDir config or build you project!`);
 };
 
 
-async function stepUpload(appKey: string, serverUrl: string) {
+async function stepUpload(accessToken: string, appKey: string, serverUrl: string) {
   try {
     spinner?.start('upload files... 😝');
 
     const data = {
+      accessToken,
       appKey,
       project_name: path.basename(constant.cwd),
     };
 
     const SourcemapFile = { file_name: 'sourcemap.zip', file_path: constant.outputSourcemap };
     spinner?.start('upload sourcemap.zip...');
-    await uploadSourcemapZips(serverUrl, { ...data, ...SourcemapFile });
+    await uploadSourcemapZips(serverUrl, accessToken, { ...data, ...SourcemapFile });
 
     spinner?.succeed('all file upload success 👏');
-  } catch (e) {
-    const err = e as Error;
+  } catch (e: any) {
     console.log();
-    console.log(chalk.red(`upload got error: ${err.message}`));
+    console.log(chalk.red(`upload got error: ${e}`));
+    console.log(e?.response?.data);
   }
 }
