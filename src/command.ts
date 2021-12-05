@@ -35,7 +35,7 @@ export default function register(): void {
     .command('deploy')
     .option('-l, --labels [labels...]', 'output extra debugging')
     .description('deploy build file to test server')
-    .action(async ({labels}) => {
+    .action(async ({ labels }) => {
       await deploy(labels);
     });
 
@@ -43,11 +43,10 @@ export default function register(): void {
     .command('smu')
     .description('upload sourcemap to front end error monitoring system Dora')
     .action(async () => {
-      await sourcemap()
+      await sourcemap();
     });
 
-
-// output help information on unknown commands
+  // output help information on unknown commands
   program.on('command:*', ([cmd]) => {
     program.outputHelp();
     console.log(`  ` + chalk.red(`Unknown command ${chalk.yellow(cmd)}.`));
@@ -55,14 +54,14 @@ export default function register(): void {
     process.exitCode = 1;
   });
 
-// add some useful info on help
+  // add some useful info on help
   program.on('--help', () => {
     console.log();
-    console.log(`  Run ${chalk.green(`dora <command> --help`)} for detailed usage of given command.`);
+    console.log(
+      `  Run ${chalk.green(`dora <command> --help`)} for detailed usage of given command.`,
+    );
     console.log();
   });
 
-
   program.parse(process.argv);
-
 }

@@ -18,28 +18,35 @@ interface Machine {
   destDir: string;
 }
 
-interface UploadBackupFields {
-  appKey: string
-  project_name: string
-
-  file_name: string
-  file_type: string
-  file_path: string
-
-  git_name?: string
-  git_email?: string
-  git_branch?: string
-
-  commit?: string
-  commit_sha?: string
-  commit_ts?: string
+interface Tags {
+  author: string;
+  author_mail: string;
+  author_msg: string;
+  git_branch: string;
+  commit_at: string;
+  commit_hash: string;
+  release: string;
+  timestamp: string;
 }
 
+interface UploadBackupFields {
+  appKey: string;
+  project_name: string;
+  release: string;
+
+  author?: string;
+  author_mail?: string;
+  git_branch: string;
+  commit?: string;
+  commit_hash?: string;
+  commit_at?: string;
+
+  file_name: string;
+}
 
 interface UploadSourcemapFields {
-  appKey: string
-  project_name: string
-
-  file_name: string
-  file_path: string
+  appKey: string;
+  project_name: string;
+  release: string;
+  file_name: string;
 }

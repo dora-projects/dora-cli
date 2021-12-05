@@ -1,23 +1,24 @@
 import inquirer from 'inquirer';
 import { isExist } from 'src/helper/fs';
-import { constant, dumpConfig } from 'src/config';
+import { constant, dumpFile } from 'src/config';
 import chalk from 'chalk';
+import * as logger from 'src/helper/logger';
 
 const questions = [
   {
     type: 'input',
     name: 'outDir',
-    message: 'What\'s project build files folder: (eg: build or dist)',
+    message: "What's project build files folder: (eg: build or dist)",
   },
   {
     type: 'input',
     name: 'appKey',
-    message: 'What\'s your appKey:',
+    message: "What's your appKey:",
   },
   {
     type: 'input',
     name: 'serverUrl',
-    message: 'What\'s your dora serverUrl:',
+    message: "What's your dora serverUrl:",
   },
 ];
 
@@ -39,26 +40,25 @@ const conf: Config = {
   ],
 };
 
-export default function(): void {
+export default function (): void {
   const hasInit = isExist(`${constant.cwd}/.dora.json`);
   if (hasInit) {
-    console.log(chalk.red(`config file is exist: .dora.json `));
+    logger.error(`.dora.json already exists！`);
     return;
   }
 
   inquirer
     .prompt(questions)
-    .then((answers) => {
+    .then(async (answers) => {
       const { outDir, appKey, serverUrl } = answers;
 
       conf.base.outDir = outDir;
       conf.base.appKey = appKey;
       conf.base.serverUrl = serverUrl;
 
-      dumpConfig(conf);
+      await dumpFile(conf, '.dora.json');
 
-      console.log(chalk.gray('config file has Generated：') + chalk.green(`.dora.json`));
-      console.log();
+      logger.success(`config file has Generated：.dora.json`);
     })
     .catch((error) => {
       console.log(error);

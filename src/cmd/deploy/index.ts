@@ -3,45 +3,27 @@ import os from 'os';
 import { compress, copy } from 'src/helper/fs';
 import { timeNowFormat } from 'src/helper/time';
 import ora from 'ora';
-import Joi from 'joi';
 import inquirer from 'inquirer';
 import { NodeSSH } from 'node-ssh';
 import dayjs from 'dayjs';
 import { getConfig } from 'src/config';
 
-const deploySchema = Joi.array().min(1).items(
-  Joi.object({
-    label: Joi.string().required(),
-    description: Joi.string().required(),
-    ip: Joi.string().ip().required(),
-    user: Joi.string().required(),
-    destDir: Joi.string().required(),
-  }),
-);
-
 const cwd = process.cwd();
 const tmpProdDir = `${cwd}/tmp/dora/prod`;
 const outputProd = `${cwd}/tmp/dora/prod.zip`;
 
-let spinner: ora.Ora|null = null;
+let spinner: ora.Ora | null = null;
 
-export default async function(labels: string[]): Promise<void> {
-  const conf = getConfig();
+export default async function (labels: string[]): Promise<void> {
+  const conf = await getConfig();
   if (!conf) return;
 
-  // 校验
-  const validate = deploySchema.validate(conf.deploy);
-  if (validate.error) {
-    console.log();
-    console.log(chalk.redBright('incorrect！ please check deploy env config'));
-    console.log();
-    console.log(chalk.red(JSON.stringify(validate.error, null, 2)));
-    console.log();
+  if (!conf.deploy || conf.deploy.length <= 0) {
+    console.log(chalk.red('conf.deploy is required'));
     return;
   }
-  const dir = conf.base.outDir;
-  const absOutDir = `${cwd}/${dir}`;
 
+  const absOutDir = `${cwd}/${conf.base.outDir}`;
   let deployLists;
 
   // 不询问
@@ -50,17 +32,16 @@ export default async function(labels: string[]): Promise<void> {
   } else {
     // 询问
     try {
-      deployLists = await userQuestion(conf) || [];
+      deployLists = (await userQuestion(conf)) || [];
     } catch (e) {
       return;
     }
   }
 
-
   // 复制
   try {
     spinner = ora('copy file...').start();
-    copy(absOutDir, tmpProdDir, (file) => !(/\.map$/.test(file)));
+    copy(absOutDir, tmpProdDir, (file) => !/\.map$/.test(file));
     spinner.succeed('copy file finished');
   } catch (e) {
     console.log(e);
@@ -93,11 +74,12 @@ export default async function(labels: string[]): Promise<void> {
       return;
     }
   }
+
   spinner.succeed('deploy finished!');
   spinner.stop();
 }
 
-async function userQuestion(conf: Config): Promise<Machine[]|null> {
+async function userQuestion(conf: Config): Promise<Machine[] | null> {
   const options = conf.deploy?.map((i) => {
     return {
       name: `【${i.label} ${i.description} ${i.ip}】`,
@@ -106,8 +88,8 @@ async function userQuestion(conf: Config): Promise<Machine[]|null> {
   });
 
   // 询问
-  const { values: userChoiceValues } = await inquirer
-    .prompt([{
+  const { values: userChoiceValues } = await inquirer.prompt([
+    {
       type: 'checkbox',
       message: 'select env to deploy',
       name: 'values',
@@ -118,18 +100,22 @@ async function userQuestion(conf: Config): Promise<Machine[]|null> {
         }
         return true;
       },
-    }]);
+    },
+  ]);
 
   const checkedMachine = conf.deploy?.filter((i) => userChoiceValues.includes(i.label)) || [];
 
   // 确认
-  const { values: confirm } = await inquirer
-    .prompt([{
+  const { values: confirm } = await inquirer.prompt([
+    {
       type: 'confirm',
       name: 'values',
-      message: `are you sure deploy to \n\n ${chalk.green(JSON.stringify(checkedMachine, null, 2))} \n\n`,
+      message: `are you sure deploy to \n\n ${chalk.green(
+        JSON.stringify(checkedMachine, null, 2),
+      )} \n\n`,
       default: false,
-    }]);
+    },
+  ]);
 
   if (!confirm) {
     console.log(chalk.gray('canceled!'));
@@ -140,7 +126,12 @@ async function userQuestion(conf: Config): Promise<Machine[]|null> {
   return checkedMachine;
 }
 
-async function scpFileToRemote(file: string, user: string, ip: string, destDir: string): Promise<void> {
+async function scpFileToRemote(
+  file: string,
+  user: string,
+  ip: string,
+  destDir: string,
+): Promise<void> {
   const ssh = new NodeSSH();
 
   let conn;
@@ -179,7 +170,9 @@ async function scpFileToRemote(file: string, user: string, ip: string, destDir: 
     concurrency: 1,
   });
 
-  const result = await ssh.execCommand(`cd ${remotePath} && unzip -q -o -d ${destDir} ${remoteFileName}`);
+  const result = await ssh.execCommand(
+    `cd ${remotePath} && unzip -q -o -d ${destDir} ${remoteFileName}`,
+  );
   console.log();
   result.stdout && console.log(chalk.green(result.stdout));
   result.stderr && console.log(chalk.red(result.stderr));
@@ -187,13 +180,15 @@ async function scpFileToRemote(file: string, user: string, ip: string, destDir: 
   if (result.stderr) {
     throw new Error('execCommand unzip fail!');
   }
-  console.log(chalk.green(`
+  console.log(
+    chalk.green(`
 -------------------------------------------------
 time: ${timeNowFormat()}
 msg: success deploy ${user}@${ip}  
 dir: ${destDir}
 -------------------------------------------------
-`));
+`),
+  );
 
   // dispose
   ssh.dispose();

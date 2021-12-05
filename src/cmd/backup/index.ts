@@ -2,48 +2,27 @@ import path from 'path';
 import ora from 'ora';
 import dayjs from 'dayjs';
 import chalk from 'chalk';
-import { constant, getConfig } from 'src/config';
+import { constant, getConfig, getTag } from 'src/config';
 import { uploadZips } from 'src/helper/upload';
 import { getGitLogs, git } from 'src/helper/git';
 import { compress, copy, isExist } from 'src/helper/fs';
-import Joi from 'joi';
+import * as logger from 'src/helper/logger';
 
 const cwd = process.cwd();
 let spinner: ora.Ora|null = null;
 
-const tmpAllDir = `${cwd}/tmp/dora/all`;
-const tmpProdDir = `${cwd}/tmp/dora/prod`;
-const tmpSourcemapDir = `${cwd}/tmp/dora/sourcemap`;
-
-const outputAll = `${cwd}/tmp/dora/all.zip`;
-const outputProd = `${cwd}/tmp/dora/prod.zip`;
-const outputSourcemap = `${cwd}/tmp/dora/sourcemap.zip`;
-
-
-const backupConfigSourcemap = Joi.object({
-  outDir: Joi.string().required(),
-  appKey: Joi.string().required(),
-  serverUrl: Joi.string().required(),
-  accessToken: Joi.string().required(),
-});
-
+const tmpAllDir = `${cwd}/tmp/dora/dist`;
+const outputAll = `${cwd}/tmp/dora/dist.zip`;
 
 // 备份构建产物
 export default async function(): Promise<void> {
-  const conf = getConfig();
+  const conf = await getConfig();
   if (!conf) return;
-
-  const validate = backupConfigSourcemap.validate(conf.base);
-  if (validate.error) {
-    console.log();
-    console.log(chalk.redBright('incorrect！ please check config file .dora.json'));
-    console.log();
-    console.log(chalk.red(JSON.stringify(validate.error, null, 2)));
-    console.log();
-    return;
-  }
+  const tags = await getTag();
+  if (!tags) return;
 
   const { outDir, accessToken, appKey, serverUrl } = conf.base;
+  const release = tags.release;
   const absOutDir = `${constant.cwd}/${outDir}`;
 
   if (!isExist(absOutDir)) {
@@ -58,8 +37,6 @@ please check you base.outDir config or build you project!`);
   // 复制
   try {
     copy(absOutDir, tmpAllDir, () => true);
-    copy(absOutDir, tmpProdDir, (file) => !(/\.map$/.test(file)));
-    copy(absOutDir, tmpSourcemapDir, (file) => /\.map$/.test(file));
     spinner.succeed('copy file finished');
   } catch (e) {
     console.log(e);
@@ -68,60 +45,48 @@ please check you base.outDir config or build you project!`);
 
   // 压缩
   try {
-    spinner.start('compress all files...');
+    spinner.start('compress build files...');
     await compress(tmpAllDir, outputAll);
-    spinner.start('compress prod files...');
-    await compress(tmpProdDir, outputProd);
-    spinner.start('compress sourcemap files...');
-    await compress(tmpSourcemapDir, outputSourcemap);
     spinner.succeed('compress file finished 👍');
   } catch (e) {
     console.log(e);
   }
 
   // 上传
-  await stepUpload(accessToken, appKey, serverUrl);
+  await stepUpload(serverUrl, appKey, accessToken, release);
   spinner.stop();
-  console.log('--------------------------------');
-  console.log('     backup success!');
-  console.log('--------------------------------');
+
+  logger.success('backup success!');
 }
 
-
-async function stepUpload(accessToken: string, appKey: string, serverUrl: string) {
+async function stepUpload(serverUrl: string, appKey: string, accessToken: string, release: string) {
   try {
-    spinner?.start('upload files... 😝');
+    spinner?.start(`upload files... 😝`);
 
     const branch = await git.branch();
     const logs = await getGitLogs();
     const latestLog = logs.latest;
 
-    const data = {
-      appKey,
+    const data: UploadBackupFields = {
+      appKey: appKey,
       project_name: path.basename(cwd),
+      release: release,
 
-      git_name: latestLog?.author_name,
-      git_email: latestLog?.author_email,
+      author: latestLog?.author_name,
+      author_mail: latestLog?.author_email,
       git_branch: branch.current,
-
       commit: latestLog?.message,
-      commit_sha: latestLog?.hash,
-      commit_ts: dayjs(latestLog?.date).format('YYYY-MM-DD HH:mm:ss'),
+      commit_hash: latestLog?.hash,
+      commit_at: dayjs(latestLog?.date).format('YYYY-MM-DD HH:mm:ss'),
+
+      file_name: 'dist.zip',
     };
 
-    const allFile = { file_name: 'all.zip', file_type: 'all', file_path: outputAll };
-    spinner?.start('upload all.zip...');
-    await uploadZips(serverUrl, accessToken, { ...data, ...allFile });
+    spinner?.start('upload dist.zip...');
 
-    const ProdFile = { file_name: 'prod.zip', file_type: 'prod', file_path: outputProd };
-    spinner?.start('upload prod.zip...');
-    await uploadZips(serverUrl, accessToken, { ...data, ...ProdFile });
+    await uploadZips(serverUrl, accessToken, outputAll, data);
 
-    const SourcemapFile = { file_name: 'sourcemap.zip', file_type: 'sourcemap', file_path: outputSourcemap };
-    spinner?.start('upload sourcemap.zip...');
-    await uploadZips(serverUrl, accessToken, { ...data, ...SourcemapFile });
-
-    spinner?.succeed('all file upload success 👏');
+    spinner?.succeed('backup file upload success 👏');
   } catch (e) {
     console.log(e);
   }

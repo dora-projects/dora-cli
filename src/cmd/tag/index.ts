@@ -1,48 +1,40 @@
 import chalk from 'chalk';
-import fs from 'fs/promises';
-import path from 'path';
 import dayjs from 'dayjs';
 import { timeNowFormat } from 'src/helper/time';
 import { git, getGitLogs } from 'src/helper/git';
+import { dumpFile } from 'src/config';
+import * as logger from 'src/helper/logger';
 
 const error = chalk.bold.red;
 
+// todo 检测本地 是否有未提交的文件
 const genVersionTag = async (): Promise<void> => {
-  const pwd = process.cwd();
-  const configDest = path.resolve(pwd, '.dora_tag.json');
-
   try {
     const nowDay = dayjs().format('MMDDHHmm');
     const shortHash = await git.raw('log', '-1', '--pretty=format:%h');
     const versionTag = `${nowDay}@${shortHash}`;
 
+    const branch = await git.branch();
     const now = timeNowFormat();
+
     const logs = await getGitLogs();
     const latestLog = logs.latest;
 
-    const versionInfo = JSON.stringify({
+    const versionInfo: Partial<Tags> = {
       author: latestLog?.author_name,
       author_mail: latestLog?.author_email,
       author_msg: latestLog?.message,
+      git_branch: branch.current,
       commit_hash: latestLog?.hash,
-      commit_short_hash: versionTag,
+      release: versionTag,
       commit_at: latestLog?.date && dayjs(latestLog?.date).format('YYYY-MM-DD HH:mm:ss'),
       timestamp: now,
-    }, null, 2);
+    };
 
-    await fs.writeFile(configDest, versionInfo);
+    await dumpFile(versionInfo, '.dora_tag.json');
 
-    console.log(chalk.gray(`
-tag file generated！！
-location：${configDest}
-`));
-
-    console.log(chalk.green(`
---------------------------------------------------------
-${versionInfo}
---------------------------------------------------------
-    `));
-
+    logger.success(`tag file generated: .dora_tag.json`);
+    logger.printJson(versionInfo);
   } catch (e) {
     console.log(error(e));
   }
