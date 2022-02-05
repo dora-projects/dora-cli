@@ -11,12 +11,12 @@ export const constant = {
   outputSourcemap: `${cwd}/tmp/dora/sourcemap.zip`,
 };
 
-export async function loadFile<T>(path: string): Promise<T | null> {
+export async function loadFile<T>(path: string): Promise<T|null> {
   try {
     const configStr = await fs.readFile(path, 'utf8');
     return JSON.parse(configStr) as T;
   } catch (e) {
-    console.log(chalk.blue(`no such file: ${chalk.red(path)}!`));
+    console.log(chalk.blue(`no files found: ${chalk.red(path)}`));
     return null;
   }
 }
@@ -46,6 +46,7 @@ const configSchema = Joi.object({
     appKey: Joi.string().required(),
     serverUrl: Joi.string().required(),
     accessToken: Joi.string().required(),
+    tagFilePath: Joi.string().optional(),
   }),
   deploy: Joi.array()
     .optional()
@@ -60,8 +61,9 @@ const configSchema = Joi.object({
     ),
 });
 
-export async function getConfig(): Promise<Config | null> {
+export async function getConfig(): Promise<Config|null> {
   const jsonData = await loadFile<Config>(`${process.cwd()}/.dora.json`);
+  if (!jsonData) return null;
 
   const validate = configSchema.validate(jsonData);
   if (validate.error) {
@@ -86,8 +88,16 @@ const tagSchema = Joi.object({
   timestamp: Joi.string().required(),
 });
 
-export async function getTag(): Promise<Tags | null> {
-  const jsonData = await loadFile<Tags>(`${process.cwd()}/.dora_tag.json`);
+export async function getTag(): Promise<Tags|null> {
+  const conf = await getConfig();
+  if (!conf) return null;
+
+  const tagFile = conf.base.tagFilePath ? conf.base.tagFilePath + '/.dora_tag.json' : '.dora_tag.json';
+  const cwd = process.cwd();
+  const filePath = path.resolve(cwd, tagFile);
+
+  const jsonData = await loadFile<Tags>(filePath);
+  if (!jsonData) return null;
 
   const validate = tagSchema.validate(jsonData);
   if (validate.error) {

@@ -53,13 +53,6 @@ please check you base.outDir config or build you project!`);
   }
 
   // 上传
-  await stepUpload(serverUrl, appKey, accessToken, release);
-  spinner.stop();
-
-  logger.success('backup success!');
-}
-
-async function stepUpload(serverUrl: string, appKey: string, accessToken: string, release: string) {
   try {
     spinner?.start(`upload files... 😝`);
 
@@ -83,11 +76,14 @@ async function stepUpload(serverUrl: string, appKey: string, accessToken: string
     };
 
     spinner?.start('upload dist.zip...');
-
     await uploadZips(serverUrl, accessToken, outputAll, data);
-
     spinner?.succeed('backup file upload success 👏');
-  } catch (e) {
-    console.log(e);
+
+    logger.success('backup success!');
+  } catch (e: any) {
+    if (e.response?.data) console.log(e.response?.data);
+    logger.error(e);
+  } finally {
+    spinner.stop();
   }
 }

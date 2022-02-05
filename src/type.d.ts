@@ -8,6 +8,7 @@ interface Base {
   appKey: string;
   serverUrl: string;
   accessToken: string;
+  tagFilePath?: string;
 }
 
 interface Machine {

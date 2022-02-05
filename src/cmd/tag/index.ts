@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import dayjs from 'dayjs';
 import { timeNowFormat } from 'src/helper/time';
 import { git, getGitLogs } from 'src/helper/git';
-import { dumpFile } from 'src/config';
+import { dumpFile, getConfig } from 'src/config';
 import * as logger from 'src/helper/logger';
 
 const error = chalk.bold.red;
@@ -10,6 +10,9 @@ const error = chalk.bold.red;
 // todo 检测本地 是否有未提交的文件
 const genVersionTag = async (): Promise<void> => {
   try {
+    const conf = await getConfig();
+    if (!conf) return;
+
     const nowDay = dayjs().format('MMDDHHmm');
     const shortHash = await git.raw('log', '-1', '--pretty=format:%h');
     const versionTag = `${nowDay}@${shortHash}`;
@@ -31,7 +34,8 @@ const genVersionTag = async (): Promise<void> => {
       timestamp: now,
     };
 
-    await dumpFile(versionInfo, '.dora_tag.json');
+    const filepath = conf.base.tagFilePath ? conf.base.tagFilePath + '/.dora_tag.json' : '.dora_tag.json';
+    await dumpFile(versionInfo, filepath);
 
     logger.success(`tag file generated: .dora_tag.json`);
     logger.printJson(versionInfo);
