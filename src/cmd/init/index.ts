@@ -28,16 +28,16 @@ const conf: Config = {
     appKey: '',
     serverUrl: '',
     accessToken: '',
-  },
-  deploy: [
-    {
-      label: 'test',
-      description: '',
-      ip: '',
-      user: '',
-      destDir: '',
-    },
-  ],
+  }
+  // deploy: [
+  //   {
+  //     label: 'test',
+  //     description: '',
+  //     ip: '',
+  //     user: '',
+  //     destDir: '',
+  //   },
+  // ],
 };
 
 export default function (): void {

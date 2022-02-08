@@ -45,8 +45,9 @@ const configSchema = Joi.object({
     outDir: Joi.string().required(),
     appKey: Joi.string().required(),
     serverUrl: Joi.string().required(),
-    accessToken: Joi.string().required(),
-    tagFilePath: Joi.string().optional(),
+    // todo: accessToken required
+    accessToken: Joi.string().allow("").optional(),
+    tagFilePath: Joi.string().allow("").optional(),
   }),
   deploy: Joi.array()
     .optional()
