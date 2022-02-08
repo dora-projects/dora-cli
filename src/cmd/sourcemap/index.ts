@@ -26,8 +26,21 @@ please check you base.outDir config or build you project!`);
 
   // 复制
   try {
-    copy(absOutDir, constant.tmpSourcemapDir, (file) => /\.map$/.test(file));
-    spinner.succeed('copy file finished');
+    let existMapFile = false;
+    copy(absOutDir, constant.tmpSourcemapDir, (file) => {
+      const m = /\.map$/.test(file);
+      if (m) {
+        existMapFile = m;
+      }
+      return m;
+    });
+
+    if (existMapFile) {
+      spinner.succeed('copy file finished');
+    } else {
+      spinner.fail('can`t find any .map file');
+      return;
+    }
   } catch (e) {
     console.log(e);
     return;
